@@ -9,6 +9,9 @@ neo4j官网
 [Neo4j Graph Database &amp; Analytics | Graph Database Management System](https://neo4j.com/)
 
 
+
+在本地下载neo4j-desktop
+
 掌握neo4j的连接
 
 cypher的查询
