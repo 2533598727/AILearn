@@ -125,7 +125,6 @@ Long short-term memory，翻译过来就是长短期记忆
 
 ![1760359735502](image/Note/1760359735502.png)
 
-
 1. Input Gate：中文是输入门，在每一时刻从输入层输入的信息会首先经过输入门，输入门的开关会决定这一时刻是否会有信息输入到Memory Cell。
 2. Output Gate：中文是输出门，每一时刻是否有信息从Memory Cell输出取决于这一道门。
 3. Forget Gate：中文是遗忘门，每一时刻Memory Cell里的值都会经历一个是否被遗忘的过程，就是由该门控制的，如果打卡，那么将会把Memory Cell里的值清除，也就是遗忘掉。
@@ -133,3 +132,50 @@ Long short-term memory，翻译过来就是长短期记忆
 ![1760359852031](image/Note/1760359852031.png)
 
 ![1760359975128](image/Note/1760359975128.png)![1760359995856](image/Note/1760359995856.png)
+
+
+## Transformer
+
+### 整体结构
+
+![1760443759048](image/Note/1760443759048.png)
+
+![1760445490279](image/Note/1760445490279.png)
+
+可以看到  **Transformer 由 Encoder 和 Decoder 两个部分组成** ，Encoder 和 Decoder 都包含 6 个 block。Transformer 的工作流程大体如下：
+
+**第一步：** 获取输入句子的每一个单词的表示向量  **X** ，**X**由单词的 Embedding（Embedding就是从原始数据提取出来的Feature） 和单词位置的 Embedding 相加得到。
+
+![1760443791017](image/Note/1760443791017.png)
+
+**第二步：** 将得到的单词表示向量矩阵 (如上图所示，每一行是一个单词的表示  **x** ) 传入 Encoder 中，经过 6 个 Encoder block 后可以得到句子所有单词的编码信息矩阵 **C
+![1760443890774](image/Note/1760443890774.png)**
+
+ **第三步** ：将 Encoder 输出的编码信息矩阵 **C**传递到 Decoder 中，Decoder 依次会根据当前翻译过的单词 1~ i 翻译下一个单词 i+1，如下图所示。在使用的过程中，翻译到单词 i+1 的时候需要通过 **Mask (掩盖)** 操作遮盖住 i+1 之后的单词。
+
+上图 Decoder 接收了 Encoder 的编码矩阵 ** C** ，然后首先输入一个翻译开始符 "`<Begin>`"，预测第一个单词 "I"；然后输入翻译开始符 "`<Begin>`" 和单词 "I"，预测单词 "have"，以此类推。这是 Transformer 使用时候的大致流程，接下来是里面各个部分的细节。
+
+### Transformer的输入
+
+Transformer 中单词的输入表示 **x**由**单词 Embedding** 和**位置 Embedding** （Positional Encoding）相加得到。
+
+![1760443985964](image/Note/1760443985964.png)
+
+#### 单词Embedding
+
+单词的 Embedding 有很多种方式可以获取，例如可以采用 Word2Vec、Glove 等算法预训练得到，也可以在 Transformer 中训练得到。
+
+#### 位置Embedding
+
+Transformer 中除了单词的 Embedding，还需要使用位置 Embedding 表示单词出现在句子中的位置。 **因为 Transformer 不采用 RNN 的结构，而是使用全局信息，不能利用单词的顺序信息，而这部分信息对于 NLP 来说非常重要。** 所以 Transformer 中使用位置 Embedding 保存单词在序列中的相对或绝对位置。
+
+位置 Embedding 用 **PE**表示，**PE** 的维度与单词 Embedding 是一样的。PE 可以通过训练得到，也可以使用某种公式计算得到。在 Transformer 中采用了后者，计算公式如下：
+
+![1760444050552](image/Note/1760444050552.png)
+
+其中，pos 表示单词在句子中的位置，d 表示 PE的维度 (与词 Embedding 一样)，2i 表示偶数的维度，2i+1 表示奇数维度 (即 2i≤d, 2i+1≤d)。使用这种公式计算 PE 有以下的好处：
+
+* 使 PE 能够适应比训练集里面所有句子更长的句子，假设训练集里面最长的句子是有 20 个单词，突然来了一个长度为 21 的句子，则使用公式计算的方法可以计算出第 21 位的 Embedding。
+* 可以让模型容易地计算出相对位置，对于固定长度的间距 k，**PE(pos+k)** 可以用 **PE(pos)** 计算得到。因为 Sin(A+B) = Sin(A)Cos(B) + Cos(A)Sin(B), Cos(A+B) = Cos(A)Cos(B) - Sin(A)Sin(B)。
+
+将单词的词 Embedding 和位置 Embedding 相加，就可以得到单词的表示向量  **x** ，**x **就是 Transformer 的输入。
