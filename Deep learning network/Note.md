@@ -133,10 +133,11 @@ Long short-term memory，翻译过来就是长短期记忆
 
 ![1760359975128](image/Note/1760359975128.png)![1760359995856](image/Note/1760359995856.png)
 
-
 ## Transformer
 
-### 整体结构
+[《Attention is all you need》论文解读及Transformer架构详细介绍](https://www.bilibili.com/video/BV1xoJwzDESD/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=6d432ace2403224c4a22058ab8af89cc)
+
+整体结构
 
 ![1760443759048](image/Note/1760443759048.png)
 
@@ -179,3 +180,61 @@ Transformer 中除了单词的 Embedding，还需要使用位置 Embedding 表�
 * 可以让模型容易地计算出相对位置，对于固定长度的间距 k，**PE(pos+k)** 可以用 **PE(pos)** 计算得到。因为 Sin(A+B) = Sin(A)Cos(B) + Cos(A)Sin(B), Cos(A+B) = Cos(A)Cos(B) - Sin(A)Sin(B)。
 
 将单词的词 Embedding 和位置 Embedding 相加，就可以得到单词的表示向量  **x** ，**x **就是 Transformer 的输入。
+
+### Self-attention(自注意力机制)
+
+上图是论文中 Transformer 的内部结构图，左侧为 Encoder block，右侧为 Decoder block。红色圈中的部分为 ** Multi-Head Attention** ，是由多个 **Self-Attention**组成的，可以看到 Encoder block 包含一个 Multi-Head Attention，而 Decoder block 包含两个 Multi-Head Attention (其中有一个用到 Masked)。Multi-Head Attention 上方还包括一个 Add & Norm 层，Add 表示残差连接 (Residual Connection) 用于防止网络退化，Norm 表示 Layer Normalization，用于对每一层的激活值进行归一化。
+
+因为 **Self-Attention**是 Transformer 的重点，所以我们重点关注 Multi-Head Attention 以及 Self-Attention，首先详细了解一下 Self-Attention 的内部逻辑。
+
+#### Self-attention的结构
+
+![1760449725161](image/Note/1760449725161.png)
+
+上图是 Self-Attention 的结构，在计算的时候需要用到矩阵 **Q(查询),K(键值),V(值)** 。在实际中，Self-Attention 接收的是输入(单词的表示向量x组成的矩阵X) 或者上一个 Encoder block 的输出。而**Q,K,V**正是通过 Self-Attention 的输入进行线性变换得到的
+
+#### Q K V 的计算
+
+Self-Attention 的输入用矩阵X进行表示，则可以使用线性变阵矩阵**WQ,WK,WV**计算得到 **Q,K,V** 。计算如下图所示，**注意 X, Q, K, V 的每一行都表示一个单词。**
+
+![1760449906369](image/Note/1760449906369.png)
+
+#### Self-attention的输出
+
+得到矩阵 Q, K, V之后就可以计算出 Self-Attention 的输出了，计算的公式如下：
+
+![1760449998956](image/Note/1760449998956.png)
+
+![1760450030296](image/Note/1760450030296.png)
+
+使用 Softmax 计算每一个单词对于其他单词的 attention 系数，公式中的 Softmax 是对矩阵的每一行进行 Softmax，即每一行的和都变为 1.
+
+![1760450037429](image/Note/1760450037429.png)
+
+![1760450044495](image/Note/1760450044495.png)
+
+![1760450056912](image/Note/1760450056912.png)
+
+#### Multi-Head Attention
+
+### Encoder结构
+
+![1760450539992](image/Note/1760450539992.png)
+
+上图红色部分是 Transformer 的 Encoder block 结构，可以看到是由 Multi-Head Attention,$  Add & Norm, Feed Forward, Add & Norm  $组成的。刚刚已经了解了 Multi-Head Attention 的计算过程，现在了解一下 Add & Norm 和 Feed Forward 部分。
+
+#### Add & Norm
+
+![1760450606970](image/Note/1760450606970.png)
+
+其中 **X**表示 Multi-Head Attention 或者 Feed Forward 的输入，MultiHeadAttention( **X** ) 和 FeedForward( **X** ) 表示输出 (输出与输入$ X $维度是一样的，所以可以相加)。
+
+**Add**指  **X** +MultiHeadAttention( **X** )，是一种残差连接，通常用于解决多层网络训练的问题，可以让网络只关注当前差异的部分，在 ResNet 中经常用到：
+
+#### Feed Forward
+
+Feed Forward 层比较简单，是一个两层的全连接层，第一层的激活函数为 Relu，第二层不使用激活函数，对应的公式如下。
+
+![1760450697721](image/Note/1760450697721.png)
+
+**X**是输入，Feed Forward 最终得到的输出矩阵的维度与**X**一致。
