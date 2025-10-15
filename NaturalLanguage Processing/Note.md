@@ -45,3 +45,8 @@ N-gram基于一个重要的简化假设——**马尔可夫假设**：
 那么：
 
 ![1760491576272](image/Note/1760491576272.png)
+
+
+## 词向量
+
+[从词袋法到词嵌入，词向量是如何演进的？ BGE | TF-IDF | 词袋法 | WordEmbedding_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1CWV6zKEBn/?spm_id_from=333.337.search-card.all.click&vd_source=8536cb876aa29ebdb0cd5626bc423c0f)
