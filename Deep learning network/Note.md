@@ -137,6 +137,8 @@ Long short-term memory，翻译过来就是长短期记忆
 
 [《Attention is all you need》论文解读及Transformer架构详细介绍](https://www.bilibili.com/video/BV1xoJwzDESD/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=6d432ace2403224c4a22058ab8af89cc)
 
+[【Transformer】最强动画讲解！目前B站最全最详细的Transformer教程，2025最新版！从理论到实战，通俗易懂解释原理，草履虫都学的会！_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1fGeAz6Eie/?spm_id_from=333.337.search-card.all.click&vd_source=8536cb876aa29ebdb0cd5626bc423c0f)
+
 整体结构
 
 ![1760443759048](image/Note/1760443759048.png)
