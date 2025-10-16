@@ -240,3 +240,12 @@ Feed Forward 层比较简单，是一个两层的全连接层，第一层的激�
 ![1760450697721](image/Note/1760450697721.png)
 
 **X**是输入，Feed Forward 最终得到的输出矩阵的维度与**X**一致。
+
+
+### GNN
+
+[零基础多图详解图神经网](https://www.bilibili.com/video/BV1iT4y1d7zP/?spm_id_from=333.337.search-card.all.click&vd_source=8536cb876aa29ebdb0cd5626bc423c0f)
+
+[络（GNN/GCN）【论文精读】_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1iT4y1d7zP/?spm_id_from=333.337.search-card.all.click&vd_source=8536cb876aa29ebdb0cd5626bc423c0f)
+
+https://staging.distill.pub/2021/gnn-intro/?ref=https://githubhelp.com
