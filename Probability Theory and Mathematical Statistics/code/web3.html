@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCMC采样：横坐标与纵坐标的关系</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 15px 0;
+        }
+        
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        button {
+            background: #4a6ee0;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .explanation-box {
+            background: #e8f4fd;
+            border-left: 4px solid #4a6ee0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .formula {
+            font-family: 'Cambria Math', serif;
+            font-style: italic;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .key-point {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MCMC采样：横坐标与纵坐标的关系</h1>
+            <p>理解为什么MCMC只采样横坐标，以及如何获得纵坐标信息</p>
+        </header>
+        
+        <div class="content">
+            <div class="panel">
+                <h2>目标分布与采样点</h2>
+                <div class="canvas-container">
+                    <canvas id="targetCanvas" width="500" height="300"></canvas>
+                </div>
+                
+                <div class="explanation-box">
+                    <h3>关键理解</h3>
+                    <p><span class="key-point">MCMC只采样横坐标（x值）</span>，但通过采样点的<span class="key-point">密度</span>来反映纵坐标（概率密度）。</p>
+                    <p class="formula">高概率区域 → 更多样本点聚集</p>
+                    <p class="formula">低概率区域 → 较少样本点</p>
+                </div>
+                
+                <button id="addSamples">添加100个样本</button>
+                <button id="resetSamples">重置样本</button>
+                <button id="toggleDensity">显示/隐藏概率密度</button>
+            </div>
+            
+            <div class="panel">
+                <h2>从样本到分布</h2>
+                <div class="canvas-container">
+                    <canvas id="histogramCanvas" width="500" height="300"></canvas>
+                </div>
+                
+                <div class="explanation-box">
+                    <h3>如何获得纵坐标信息</h3>
+                    <p>通过两种方法从横坐标样本获得纵坐标信息：</p>
+                    <ol>
+                        <li><strong>直方图/核密度估计</strong>：统计样本在不同区间的频数</li>
+                        <li><strong>已知分布形式</strong>：如果我们知道目标分布的函数形式</li>
+                    </ol>
+                </div>
+                
+                <button id="showHistogram">显示直方图</button>
+                <button id="showKDE">显示核密度估计</button>
+                <button id="showTrueDensity">显示真实概率密度</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>详细解释</h2>
+            
+            <div class="explanation-box">
+                <h3>为什么MCMC只采样横坐标？</h3>
+                <p>MCMC的根本目标是：<span class="key-point">从复杂的目标分布 π(x) 中生成样本</span>。</p>
+                <p>我们得到的是一系列x值：x₁, x₂, x₃, ..., xₙ</p>
+                <p>这些样本的<strong>经验分布</strong>会逼近目标分布 π(x)。</p>
+            </div>
+            
+            <div class="explanation-box">
+                <h3>如何从横坐标获得纵坐标？</h3>
+                
+                <h4>方法1：直方图（离散估计）</h4>
+                <p class="formula">p(x) ≈ (区间内的样本数) / (总样本数 × 区间宽度)</p>
+                <p>将x轴划分为多个区间，统计每个区间的样本数量，然后归一化。</p>
+                
+                <h4>方法2：核密度估计（连续估计）</h4>
+                <p class="formula">p̂(x) = (1/n) × Σ K((x - xᵢ)/h)</p>
+                <p>在每个样本点处放置一个"核函数"（如高斯函数），然后求和得到平滑的概率密度估计。</p>
+                
+                <h4>方法3：利用已知分布形式</h4>
+                <p>在Metropolis-Hastings算法中，我们实际上<strong>知道目标分布的函数形式</strong>（可能差一个归一化常数）：</p>
+                <p class="formula">π(x) = f(x) / Z，其中 Z = ∫f(x)dx 是未知的归一化常数</p>
+                <p>但我们计算接受率时只需要比值：π(x')/π(x) = f(x')/f(x)，Z被约掉了！</p>
+            </div>
+            
+            <div class="explanation-box">
+                <h3>Metropolis-Hastings算法的巧妙之处</h3>
+                <p>算法只需要知道目标分布的<strong>相对概率</strong>，不需要知道归一化常数Z：</p>
+                <p class="formula">接受率 α = min(1, π(x')/π(x)) = min(1, f(x')/f(x))</p>
+                <p>这使得我们可以对很多无法直接归一化的复杂分布进行采样！</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const targetCanvas = document.getElementById('targetCanvas');
+        const targetCtx = targetCanvas.getContext('2d');
+        const histogramCanvas = document.getElementById('histogramCanvas');
+        const histogramCtx = histogramCanvas.getContext('2d');
+        
+        const addSamplesBtn = document.getElementById('addSamples');
+        const resetSamplesBtn = document.getElementById('resetSamples');
+        const toggleDensityBtn = document.getElementById('toggleDensity');
+        const showHistogramBtn = document.getElementById('showHistogram');
+        const showKDEBtn = document.getElementById('showKDE');
+        const showTrueDensityBtn = document.getElementById('showTrueDensity');
+        
+        // 状态变量
+        let samples = [];
+        let showTrueDensity = true;
+        let histogramMode = 'kde'; // 'histogram', 'kde', 'true'
+        
+        // 目标分布（双峰混合高斯）
+        function targetDistribution(x) {
+            return 0.5 * Math.exp(-0.5 * Math.pow((x - 2) / 1, 2)) / (1 * Math.sqrt(2 * Math.PI)) +
+                   0.5 * Math.exp(-0.5 * Math.pow((x + 2) / 1, 2)) / (1 * Math.sqrt(2 * Math.PI));
+        }
+        
+        // 未归一化的目标分布（用于MH算法）
+        function unnormalizedTarget(x) {
+            return 0.5 * Math.exp(-0.5 * Math.pow((x - 2) / 1, 2)) +
+                   0.5 * Math.exp(-0.5 * Math.pow((x + 2) / 1, 2));
+        }
+        
+        // 建议分布
+        function proposalDistribution(current) {
+            return current + (Math.random() - 0.5) * 2 * 1.5; // 标准差1.5
+        }
+        
+        // 执行一步MH采样
+        function sampleMH() {
+            if (samples.length === 0) {
+                // 初始样本从均匀分布中随机选择
+                return -5 + Math.random() * 10;
+            }
+            
+            const current = samples[samples.length - 1];
+            const candidate = proposalDistribution(current);
+            
+            const currentDensity = unnormalizedTarget(current);
+            const candidateDensity = unnormalizedTarget(candidate);
+            
+            let acceptanceRatio = 1;
+            if (currentDensity > 0) {
+                acceptanceRatio = Math.min(1, candidateDensity / currentDensity);
+            }
+            
+            return Math.random() <= acceptanceRatio ? candidate : current;
+        }
+        
+        // 添加多个样本
+        function addSamples(count) {
+            for (let i = 0; i < count; i++) {
+                samples.push(sampleMH());
+            }
+            drawTargetDistribution();
+            drawHistogram();
+        }
+        
+        // 核密度估计
+        function kernelDensityEstimate(x, samples, bandwidth) {
+            const n = samples.length;
+            if (n === 0) return 0;
+            
+            let sum = 0;
+            for (let i = 0; i < n; i++) {
+                // 使用高斯核
+                const u = (x - samples[i]) / bandwidth;
+                sum += Math.exp(-0.5 * u * u) / (bandwidth * Math.sqrt(2 * Math.PI));
+            }
+            
+            return sum / n;
+        }
+        
+        // 绘制目标分布和样本点
+        function drawTargetDistribution() {
+            const width = targetCanvas.width;
+            const height = targetCanvas.height;
+            const padding = 40;
+            const plotWidth = width - 2 * padding;
+            const plotHeight = height - 2 * padding;
+            
+            // 清除画布
+            targetCtx.clearRect(0, 0, width, height);
+            
+            // 绘制坐标轴
+            targetCtx.strokeStyle = '#ccc';
+            targetCtx.lineWidth = 1;
+            targetCtx.beginPath();
+            targetCtx.moveTo(padding, padding);
+            targetCtx.lineTo(padding, height - padding);
+            targetCtx.lineTo(width - padding, height - padding);
+            targetCtx.stroke();
+            
+            // 绘制目标分布（如果启用）
+            if (showTrueDensity) {
+                targetCtx.strokeStyle = '#4a6ee0';
+                targetCtx.lineWidth = 2;
+                targetCtx.beginPath();
+                
+                const xMin = -5;
+                const xMax = 5;
+                
+                let maxDensity = 0;
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const density = targetDistribution(x);
+                    if (density > maxDensity) maxDensity = density;
+                }
+                
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const density = targetDistribution(x);
+                    const xPixel = padding + i;
+                    const yPixel = height - padding - (density / maxDensity) * plotHeight;
+                    
+                    if (i === 0) {
+                        targetCtx.moveTo(xPixel, yPixel);
+                    } else {
+                        targetCtx.lineTo(xPixel, yPixel);
+                    }
+                }
+                targetCtx.stroke();
+            }
+            
+            // 绘制样本点
+            if (samples.length > 0) {
+                const xMin = -5;
+                const xMax = 5;
+                
+                // 绘制所有样本点
+                targetCtx.fillStyle = 'rgba(255, 71, 87, 0.6)';
+                samples.forEach(sample => {
+                    const xPixel = padding + ((sample - xMin) / (xMax - xMin)) * plotWidth;
+                    const yPixel = height - padding;
+                    
+                    targetCtx.beginPath();
+                    targetCtx.arc(xPixel, yPixel, 3, 0, Math.PI * 2);
+                    targetCtx.fill();
+                });
+                
+                // 突出显示最近的一些样本点
+                const recentSamples = samples.slice(-50);
+                targetCtx.fillStyle = '#ff4757';
+                recentSamples.forEach(sample => {
+                    const xPixel = padding + ((sample - xMin) / (xMax - xMin)) * plotWidth;
+                    const yPixel = height - padding;
+                    
+                    targetCtx.beginPath();
+                    targetCtx.arc(xPixel, yPixel, 4, 0, Math.PI * 2);
+                    targetCtx.fill();
+                });
+            }
+            
+            // 添加标签
+            targetCtx.fillStyle = '#333';
+            targetCtx.font = '14px Arial';
+            targetCtx.fillText('x (横坐标)', width / 2 - 20, height - padding + 20);
+            targetCtx.save();
+            targetCtx.translate(padding - 20, height / 2);
+            targetCtx.rotate(-Math.PI / 2);
+            targetCtx.fillText('概率密度 p(x)', 0, 0);
+            targetCtx.restore();
+            
+            // 添加样本数量信息
+            targetCtx.fillStyle = '#333';
+            targetCtx.font = '14px Arial';
+            targetCtx.fillText(`样本数量: ${samples.length}`, padding + 10, padding + 20);
+        }
+        
+        // 绘制直方图或核密度估计
+        function drawHistogram() {
+            const width = histogramCanvas.width;
+            const height = histogramCanvas.height;
+            const padding = 40;
+            const plotWidth = width - 2 * padding;
+            const plotHeight = height - 2 * padding;
+            
+            // 清除画布
+            histogramCtx.clearRect(0, 0, width, height);
+            
+            // 绘制坐标轴
+            histogramCtx.strokeStyle = '#ccc';
+            histogramCtx.lineWidth = 1;
+            histogramCtx.beginPath();
+            histogramCtx.moveTo(padding, padding);
+            histogramCtx.lineTo(padding, height - padding);
+            histogramCtx.lineTo(width - padding, height - padding);
+            histogramCtx.stroke();
+            
+            if (samples.length === 0) {
+                histogramCtx.fillStyle = '#333';
+                histogramCtx.font = '16px Arial';
+                histogramCtx.fillText('暂无样本数据', width / 2 - 50, height / 2);
+                return;
+            }
+            
+            const xMin = -5;
+            const xMax = 5;
+            
+            if (histogramMode === 'histogram') {
+                // 绘制直方图
+                const binCount = 20;
+                const binWidth = (xMax - xMin) / binCount;
+                const histogram = new Array(binCount).fill(0);
+                
+                samples.forEach(sample => {
+                    if (sample >= xMin && sample <= xMax) {
+                        const binIndex = Math.floor((sample - xMin) / binWidth);
+                        if (binIndex >= 0 && binIndex < binCount) {
+                            histogram[binIndex]++;
+                        }
+                    }
+                });
+                
+                const maxCount = Math.max(...histogram);
+                
+                histogramCtx.fillStyle = 'rgba(255, 165, 0, 0.7)';
+                
+                for (let i = 0; i < binCount; i++) {
+                    const count = histogram[i];
+                    if (count > 0) {
+                        const barHeight = (count / maxCount) * plotHeight;
+                        const x = padding + (i / binCount) * plotWidth;
+                        const barWidth = plotWidth / binCount;
+                        
+                        histogramCtx.fillRect(x, height - padding - barHeight, barWidth, barHeight);
+                    }
+                }
+                
+                // 添加直方图说明
+                histogramCtx.fillStyle = '#333';
+                histogramCtx.font = '12px Arial';
+                histogramCtx.fillText('直方图: 统计每个区间的样本数量', padding + 10, padding + 20);
+                
+            } else if (histogramMode === 'kde') {
+                // 绘制核密度估计
+                histogramCtx.strokeStyle = '#e74c3c';
+                histogramCtx.lineWidth = 2;
+                histogramCtx.beginPath();
+                
+                const bandwidth = 0.5; // 核密度估计的带宽
+                let maxKDE = 0;
+                
+                // 先计算最大值用于归一化
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const kdeValue = kernelDensityEstimate(x, samples, bandwidth);
+                    if (kdeValue > maxKDE) maxKDE = kdeValue;
+                }
+                
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const kdeValue = kernelDensityEstimate(x, samples, bandwidth);
+                    const xPixel = padding + i;
+                    const yPixel = height - padding - (kdeValue / maxKDE) * plotHeight;
+                    
+                    if (i === 0) {
+                        histogramCtx.moveTo(xPixel, yPixel);
+                    } else {
+                        histogramCtx.lineTo(xPixel, yPixel);
+                    }
+                }
+                histogramCtx.stroke();
+                
+                // 添加KDE说明
+                histogramCtx.fillStyle = '#333';
+                histogramCtx.font = '12px Arial';
+                histogramCtx.fillText('核密度估计: 平滑的概率密度估计', padding + 10, padding + 20);
+                
+            } else if (histogramMode === 'true') {
+                // 绘制真实概率密度
+                histogramCtx.strokeStyle = '#4a6ee0';
+                histogramCtx.lineWidth = 2;
+                histogramCtx.beginPath();
+                
+                let maxDensity = 0;
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const density = targetDistribution(x);
+                    if (density > maxDensity) maxDensity = density;
+                }
+                
+                for (let i = 0; i <= plotWidth; i++) {
+                    const x = xMin + (i / plotWidth) * (xMax - xMin);
+                    const density = targetDistribution(x);
+                    const xPixel = padding + i;
+                    const yPixel = height - padding - (density / maxDensity) * plotHeight;
+                    
+                    if (i === 0) {
+                        histogramCtx.moveTo(xPixel, yPixel);
+                    } else {
+                        histogramCtx.lineTo(xPixel, yPixel);
+                    }
+                }
+                histogramCtx.stroke();
+                
+                // 添加真实分布说明
+                histogramCtx.fillStyle = '#333';
+                histogramCtx.font = '12px Arial';
+                histogramCtx.fillText('真实概率密度: 已知的目标分布形式', padding + 10, padding + 20);
+            }
+            
+            // 添加坐标轴标签
+            histogramCtx.fillStyle = '#333';
+            histogramCtx.font = '14px Arial';
+            histogramCtx.fillText('x', width - padding + 5, height - padding + 5);
+            histogramCtx.save();
+            histogramCtx.translate(padding - 20, height / 2);
+            histogramCtx.rotate(-Math.PI / 2);
+            histogramCtx.fillText('概率密度 p(x)', 0, 0);
+            histogramCtx.restore();
+        }
+        
+        // 事件监听器
+        addSamplesBtn.addEventListener('click', () => addSamples(100));
+        resetSamplesBtn.addEventListener('click', () => {
+            samples = [];
+            drawTargetDistribution();
+            drawHistogram();
+        });
+        toggleDensityBtn.addEventListener('click', () => {
+            showTrueDensity = !showTrueDensity;
+            drawTargetDistribution();
+        });
+        showHistogramBtn.addEventListener('click', () => {
+            histogramMode = 'histogram';
+            drawHistogram();
+        });
+        showKDEBtn.addEventListener('click', () => {
+            histogramMode = 'kde';
+            drawHistogram();
+        });
+        showTrueDensityBtn.addEventListener('click', () => {
+            histogramMode = 'true';
+            drawHistogram();
+        });
+        
+        // 初始化
+        window.onload = function() {
+            drawTargetDistribution();
+            drawHistogram();
+        };
+    </script>
+</body>
+</html>
