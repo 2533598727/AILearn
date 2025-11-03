@@ -1,0 +1,99 @@
+{
+    "topic": {
+      "title": "My AI Research Journey — 从本科到科研的AI学习路线",
+      "children": [
+        {
+          "title": "Foundations 基础层",
+          "children": [
+            { "title": "Linear Algebra 线性代数\n→ Matrix Operations, Eigenvalues, SVD" },
+            { "title": "Probability & Statistics 概率与统计\n→ Bayesian Inference, Expectation" },
+            { "title": "Calculus & Optimization 微积分与优化\n→ Gradient Descent, Convexity" },
+            { "title": "Python + NumPy 实践\n→ Broadcasting, Linear Regression" }
+          ]
+        },
+        {
+          "title": "Core Architectures 核心算法",
+          "children": [
+            { "title": "Machine Learning Basics 机器学习基础\n→ SVM, KNN, Decision Tree" },
+            { "title": "Deep Learning 深度学习\n→ Backpropagation, Neural Network" },
+            { "title": "Optimization 优化方法\n→ SGD, Adam, Regularization" }
+          ]
+        },
+        {
+          "title": "Computer Vision 计算机视觉",
+          "children": [
+            { "title": "LeNet (1998) → AlexNet (2012) → VGG (2014) → ResNet (2015) → ViT (2020)" },
+            { "title": "Submethods: Convolution, Residual Connection, Normalization, Attention" },
+            { "title": "Practice: Reproduce ResNet on CIFAR10" },
+            { "title": "Time: 4 Weeks" }
+          ]
+        },
+        {
+          "title": "NLP 自然语言处理",
+          "children": [
+            { "title": "Word2Vec (2013) → Seq2Seq (2014) → Transformer (2017) → BERT (2018) → GPT (2020)" },
+            { "title": "Submethods: Attention, Masked LM, Positional Encoding" },
+            { "title": "Practice: Build a Mini-BERT" },
+            { "title": "Time: 6 Weeks" }
+          ]
+        },
+        {
+          "title": "Reinforcement Learning 强化学习",
+          "children": [
+            { "title": "DQN (2013) → TRPO (2015) → PPO (2017) → SAC (2018)" },
+            { "title": "Submethods: Policy Gradient, Entropy Regularization" },
+            { "title": "Practice: Reproduce PPO on CartPole" },
+            { "title": "Time: 5 Weeks" }
+          ]
+        },
+        {
+          "title": "Generative Models 生成模型",
+          "children": [
+            { "title": "VAE (2013) → GAN (2014) → DCGAN (2015) → Diffusion (2020) → Stable Diffusion (2022)" },
+            { "title": "Submethods: KL Divergence, Reparameterization, Adversarial Training" },
+            { "title": "Practice: Implement Diffusion Sampling" },
+            { "title": "Time: 6 Weeks" }
+          ]
+        },
+        {
+          "title": "AI Safety & Explainability 安全与可解释性",
+          "children": [
+            { "title": "Adversarial Examples (2013) → LIME (2016) → Grad-CAM (2017)" },
+            { "title": "Submethods: Perturbation, Local Approximation, Visualization" },
+            { "title": "Practice: Visualize Grad-CAM on ResNet" },
+            { "title": "Time: 3 Weeks" }
+          ]
+        },
+        {
+          "title": "Researcher Competence 科研能力",
+          "children": [
+            { "title": "Paper Reading → Reproduction → Ablation → Innovation" },
+            { "title": "Tools: Git, WandB, LaTeX, arXiv" },
+            { "title": "Output: Report + Visualization" }
+          ]
+        },
+        {
+          "title": "Practice & Growth Path 实践成长路线",
+          "children": [
+            { "title": "Stage 1: 手写模型 / Write Simple Models (LeNet, Word2Vec)" },
+            { "title": "Stage 2: 经典论文复现 / Reproduce Classic Papers" },
+            { "title": "Stage 3: 实验与消融 / Ablation & Tuning" },
+            { "title": "Stage 4: 改进与创新 / Propose Improvements" },
+            { "title": "Stage 5: 论文写作与展示 / Paper Writing & Poster" }
+          ]
+        },
+        {
+          "title": "Learning Timeline 学习时间轴",
+          "children": [
+            { "title": "1–2月: 数学 + Python 基础" },
+            { "title": "3–4月: 深度学习 (CNN / RNN)" },
+            { "title": "5–6月: Transformer 理解与实现" },
+            { "title": "7–8月: 专项方向研究 (CV/NLP/RL/生成)" },
+            { "title": "9–10月: 实验与可视化" },
+            { "title": "11–12月: 成果整理 + Poster展示" }
+          ]
+        }
+      ]
+    }
+  }
+  
