@@ -249,7 +249,6 @@ Feed Forward 层比较简单，是一个两层的全连接层，第一层的激�
 
 https://staging.distill.pub/2021/gnn-intro/?ref=https://githubhelp.com
 
-
 ### 能量模型
 
 [(2 封私信 / 20 条消息) 能量模型 Transformer - 知乎](https://zhuanlan.zhihu.com/p/1930622489240777559)
